@@ -12,18 +12,25 @@ import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PortConstants;
+import frc.robot.Constants.SpeedConstants;
 
 public class Magazine extends SubsystemBase 
 {  
-    private boolean load;
+    private final WPI_VictorSPX magazine = new WPI_VictorSPX(PortConstants.magazine);
 
     public Magazine()
     {
 
+    }
+
+    public void load()
+    {
+        magazine.set(ControlMode.PercentOutput, SpeedConstants.magazineSpeed);
     }
 
     @Override

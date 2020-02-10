@@ -12,7 +12,7 @@ import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class SimpleVisionTurn extends CommandBase {
+public class VSimpleTurn extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Drivetrain drivetrain;
@@ -23,7 +23,7 @@ public class SimpleVisionTurn extends CommandBase {
   private double steer;
   private double sum;
 
-  public SimpleVisionTurn(Drivetrain drive) 
+  public VSimpleTurn(Drivetrain drive) 
   {
     drivetrain = drive;
     addRequirements(drivetrain);

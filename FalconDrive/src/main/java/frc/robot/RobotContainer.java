@@ -24,15 +24,19 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import frc.robot.Constants.SpeedConstants;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.SimpleVisionTurn;
+import frc.robot.commands.VSimpleTurn;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.SpinState;
+import frc.robot.subsystems.Spinner;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PerpetualCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -47,95 +51,75 @@ public class RobotContainer
   private final Intake intake = new Intake();
   private final Magazine magazine = new Magazine();
   private final Shooter shooter = new Shooter();
-
-
-  private final SimpleVisionTurn aim = new SimpleVisionTurn(drivetrain);
+  private final Spinner spinner = new Spinner();
   
   private final Joystick stick = new Joystick(0);
 
   public RobotContainer() 
   {
-    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(stick.getRawAxis(1), stick.getRawAxis(4)), drivetrain));
+    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(stick.getRawAxis(1)*SpeedConstants.driveSpeed, stick.getRawAxis(4)*SpeedConstants.driveSpeed), drivetrain));
     configureButtonBindings();
   }
 
   private void configureButtonBindings() 
   {
-    JoystickButton a, b, x, y;
+    JoystickButton a, b, x, y, start, back, lb, rb, lt, rt;
 
     a = new JoystickButton(stick, 1);
-
     b = new JoystickButton(stick, 2);
     x = new JoystickButton(stick, 3);
     y = new JoystickButton(stick, 4);
+    lb = new JoystickButton(stick, 5);
+    rb = new JoystickButton(stick, 6);
+    back = new JoystickButton(stick, 7);
+    start = new JoystickButton(stick, 8);
 
-    a.toggleWhenPressed(aim);
-    //b.whenPressed(() -> shooter.shoot(1.0)).whenReleased(() -> shooter.shoot(0.0));
-    //x.whenPressed(() -> shooter.shoot(0.75)).whenReleased(() -> shooter.shoot(0.0));
-    //y.whenPressed(() -> shooter.shoot(0.5)).whenReleased(() -> shooter.shoot(0.0));
-    b.toggleWhenPressed(new Shoot(shooter, 0.9));
-    x.toggleWhenPressed(new Shoot(shooter, 0.8));
-    y.toggleWhenPressed(new Shoot(shooter, 0.7));
+    a.toggleWhenPressed(new VSimpleTurn(drivetrain));
 
-    b.toggleWhenPressed(new PerpetualCommand(new InstantCommand(() -> shooter.shoot(0.9), shooter)));
-    x.toggleWhenPressed(new PerpetualCommand(new InstantCommand(() -> shooter.shoot(0.9), shooter)));
-    y.toggleWhenPressed(new PerpetualCommand(new InstantCommand(() -> shooter.shoot(0.9), shooter)));
+    b.toggleWhenPressed(new PerpetualCommand(new InstantCommand(() -> shooter.shoot(1.00), shooter)));
 
-    //start.whenPressed(() -> drivetrain.reset());
+    //back.whenPressed(new ConditionalCommand(null, null, spinner.getState() == Color));
   }
 
   public Command getAutonomousCommand() 
   {
-    
-    // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(Constants.AutoConstants.ksVolts,
-                                       Constants.AutoConstants.kvVoltSecondsPerMeter,
-                                       Constants.AutoConstants.kaVoltSecondsSquaredPerMeter),
-                                       Constants.AutoConstants.kDriveKinematics,
-                                       10);
-
-    // Create config for trajectory
-    TrajectoryConfig config =
-        new TrajectoryConfig(Constants.AutoConstants.kMaxSpeedMetersPerSecond,
-                             Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-            // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(Constants.AutoConstants.kDriveKinematics)
-            // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);
-
-    // An example trajectory to follow.  All units in meters.
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(
-            
-        ),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(.01, 0, new Rotation2d(0)),
-        // Pass config
-        config
-    );
-
-    RamseteCommand ramseteCommand = new RamseteCommand(
-        exampleTrajectory,
-        drivetrain::getPose,
-        new RamseteController(Constants.AutoConstants.kRamseteB, Constants.AutoConstants.kRamseteZeta),
+    new DifferentialDriveVoltageConstraint(
         new SimpleMotorFeedforward(Constants.AutoConstants.ksVolts,
                                    Constants.AutoConstants.kvVoltSecondsPerMeter,
                                    Constants.AutoConstants.kaVoltSecondsSquaredPerMeter),
-        Constants.AutoConstants.kDriveKinematics,
-        drivetrain::getWheelSpeeds,
-        new PIDController(Constants.AutoConstants.kPDriveVel, 0, 0),
-        new PIDController(Constants.AutoConstants.kPDriveVel, 0, 0),
-        // RamseteCommand passes volts to the callback
-        drivetrain::tankDriveVolts,
-        drivetrain
-    );
+                                   Constants.AutoConstants.kDriveKinematics,
+                                   10);
 
-    // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> drivetrain.tankDriveVolts(0, 0));
+    TrajectoryConfig config = new TrajectoryConfig(Constants.AutoConstants.kMaxSpeedMetersPerSecond,
+        Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+            .setKinematics(Constants.AutoConstants.kDriveKinematics)
+            .addConstraint(autoVoltageConstraint);
+
+    RamseteCommand forward = createRamsete(TrajectoryGenerator.generateTrajectory(
+      new Pose2d(0, 0, new Rotation2d(0)),
+      List.of(new Translation2d(0.1, 0)),
+      new Pose2d(0.2, 0, new Rotation2d(0)),
+      config));
+  
+    return forward.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andThen(() -> drivetrain.drive(0, 0));
+  }
+
+  private RamseteCommand createRamsete(Trajectory trajectory)
+  {
+    return new RamseteCommand(
+              trajectory,
+              drivetrain::getPose,
+              new RamseteController(Constants.AutoConstants.kRamseteB, Constants.AutoConstants.kRamseteZeta),
+              new SimpleMotorFeedforward(Constants.AutoConstants.ksVolts,
+                  Constants.AutoConstants.kvVoltSecondsPerMeter,
+                  Constants.AutoConstants.kaVoltSecondsSquaredPerMeter),
+                  Constants.AutoConstants.kDriveKinematics,
+              drivetrain::getWheelSpeeds,
+              new PIDController(Constants.AutoConstants.kPDriveVel, 0, 0),
+              new PIDController(Constants.AutoConstants.kPDriveVel, 0, 0),
+              drivetrain::tankDriveVolts,
+              drivetrain
+              );
   }
 }

@@ -41,9 +41,9 @@ public class Drivetrain extends SubsystemBase
   private final AHRS gyro = new AHRS(Port.kMXP);
 
   private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeading()));
-
+  
   double encoderConstant =
-        (1 / 4096) * .1524 * Math.PI;
+        (1.0 / 4096) * .1524 * Math.PI;
 
   public Drivetrain()
   {
@@ -61,6 +61,8 @@ public class Drivetrain extends SubsystemBase
     rSubFalcon.setInverted(InvertType.FollowMaster);
 
     drive.setSafetyEnabled(false);
+
+    reset();
   }
 
   @Override
@@ -95,21 +97,25 @@ public class Drivetrain extends SubsystemBase
     return odometry.getPoseMeters();
   }
 
-  public void tankDriveVolts(double leftVolts, double rightVolts) {
+  public void tankDriveVolts(double leftVolts, double rightVolts) 
+  {
     lMainFalcon.setVoltage(leftVolts);
     rMainFalcon.setVoltage(rightVolts);
     drive.feed();
   }
 
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() 
+  {
     return new DifferentialDriveWheelSpeeds(leftEncoderRate(), rightEncoderRate());
   }
 
-  public double rightEncoderRate(){
+  public double rightEncoderRate()
+  {
     return rMainFalcon.getSelectedSensorVelocity(0) * encoderConstant * 10 * -1;
   }
 
-  public double leftEncoderRate(){
+  public double leftEncoderRate()
+  {
     return lMainFalcon.getSelectedSensorVelocity(0) * encoderConstant * 10;
   }
 }

@@ -8,37 +8,41 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.ColorSensorV3;
 
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SpeedConstants;
 
-public class Elevator extends SubsystemBase 
-{   
-    private PosState elevatorState = PosState.Default;
+public class Spinner extends SubsystemBase 
+{  
+    private final WPI_TalonSRX spinner = new WPI_TalonSRX(PortConstants.spinner);
+    private final ColorSensorV3 sensor = new ColorSensorV3(I2C.Port.kOnboard);
+    private SpinState state = SpinState.Color;
 
-    private final WPI_TalonFX lElevator = new WPI_TalonFX(PortConstants.elevator1);
-    private final WPI_TalonFX rElevator = new WPI_TalonFX(PortConstants.elevator2);
-
-    public Elevator()
+    public Spinner()
     {
-        rElevator.follow(lElevator);
-        rElevator.setInverted(InvertType.OpposeMaster);
+        spinner.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        spinner.setNeutralMode(NeutralMode.Brake);
     }
 
-    public void up()
+    public void spin()
     {
-        lElevator.set(ControlMode.PercentOutput, SpeedConstants.elevatorSpeed);
+        spinner.set(ControlMode.PercentOutput, SpeedConstants.spinnerSpeed);
     }
 
-    public void down()
+    public SpinState getState()
     {
-        lElevator.set(ControlMode.PercentOutput, -SpeedConstants.elevatorSpeed);
+        return state;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class Elevator extends SubsystemBase
     }
 }
 
-enum PosState
+enum SpinState
 {
-    Default,
+    Color, Distance,
 }

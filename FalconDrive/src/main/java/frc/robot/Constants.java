@@ -35,6 +35,7 @@ public final class Constants
         public static final int elevator2 = 10;
         public static final int lShooter = 11;
         public static final int rShooter = 12;
+        public static final int spinner = 13;
     }
     public static class VisionConstants
     {
@@ -57,5 +58,16 @@ public final class Constants
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
         public static final double distancePerPulse = 0.0002337786720;
+    }
+
+    public static class SpeedConstants
+    {
+        public static final double driveSpeed = 1.0;
+        public static final double shootSpeed = 1.0;
+        public static final double magazineSpeed = 1.0;
+        public static final double intakeSpeed = 1.0;
+        public static final double feederSpeed = 1.0;
+        public static final double elevatorSpeed = 1.0;
+        public static final double spinnerSpeed = 1.0;
     }
 }

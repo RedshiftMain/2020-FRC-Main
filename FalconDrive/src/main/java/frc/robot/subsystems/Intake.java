@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PortConstants;
+import frc.robot.Constants.SpeedConstants;
 
 public class Intake extends SubsystemBase 
 {
@@ -26,6 +27,16 @@ public class Intake extends SubsystemBase
     public Intake()
     {
         
+    }
+
+    public void intake()
+    {
+        intakeVictor.set(ControlMode.PercentOutput, SpeedConstants.intakeSpeed);
+    }
+
+    public void outtake()
+    {
+        intakeVictor.set(ControlMode.PercentOutput, -SpeedConstants.intakeSpeed);
     }
 
     @Override
