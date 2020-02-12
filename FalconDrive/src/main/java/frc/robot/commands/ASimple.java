@@ -9,45 +9,49 @@ package frc.robot.commands;
 
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Shooter;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class Shoot extends CommandBase {
+public class ASimple extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+  private final Drivetrain drivetrain;
 
-  private final Shooter shooter;
-  private final double speed;
+  private double speed = 0;
+  private double error = 0;
+  private final double desiredDist;
 
-  public Shoot(Shooter shoot, double s) 
+  public ASimple(Drivetrain drive, double dist) 
   {
-    shooter = shoot;
-    speed = s;
-    addRequirements(shooter);
+    drivetrain = drive;
+    desiredDist = dist;
+    addRequirements(drivetrain);
   }
 
   @Override
   public void initialize() 
   {
-      
+    drivetrain.reset();
   }
 
   @Override
   public void execute() 
   {
-    shooter.shoot(speed);
+    error = desiredDist-drivetrain.leftEncoder();
+    speed = .01*error;
+
+    drivetrain.drive(speed, 0);
   }
 
   @Override
   public void end(boolean interrupted) 
   {
-    shooter.shoot(0);
+    drivetrain.drive(0, 0);
   }
 
   @Override
   public boolean isFinished() 
   {
-    return false;
+    return speed < VisionConstants.minThreshold;
   }
 }

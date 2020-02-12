@@ -36,6 +36,12 @@ public final class Constants
         public static final int lShooter = 11;
         public static final int rShooter = 12;
         public static final int spinner = 13;
+
+        public static final int beamSensor = 14;
+        public static final int fLeftPiston = 15;
+        public static final int rLeftPiston = 16;
+        public static final int fRightPiston = 17;
+        public static final int rRightPiston = 18;
     }
     public static class VisionConstants
     {

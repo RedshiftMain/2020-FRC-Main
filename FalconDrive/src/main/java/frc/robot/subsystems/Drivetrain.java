@@ -88,6 +88,16 @@ public class Drivetrain extends SubsystemBase
     odometry.resetPosition(odometry.getPoseMeters(), Rotation2d.fromDegrees(getHeading()));
   }
 
+  public double rightEncoder()
+  {
+    return rMainFalcon.getSelectedSensorPosition();
+  }
+
+  public double leftEncoder()
+  {
+    return lMainFalcon.getSelectedSensorPosition();
+  }
+
   private double getHeading() 
   {
     return Math.IEEEremainder(gyro.getAngle(), 360);

@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SpeedConstants;
 
-public class Magazine extends SubsystemBase 
-{  
+public class Magazine extends SubsystemBase
+{
     private final WPI_VictorSPX magazine = new WPI_VictorSPX(PortConstants.magazine);
 
     public Magazine()
@@ -31,6 +31,11 @@ public class Magazine extends SubsystemBase
     public void load()
     {
         magazine.set(ControlMode.PercentOutput, SpeedConstants.magazineSpeed);
+    }
+
+    public void stop()
+    {
+        magazine.set(ControlMode.PercentOutput, 0);
     }
 
     @Override

@@ -54,7 +54,7 @@ public class Shooter extends SubsystemBase
       actualSpeed += kP*error - kD*(Math.abs(error-lastError));
       actualSpeed = Math.max(0, actualSpeed);
 
-      lShooter.set(TalonFXControlMode.PercentOutput, actualSpeed);
+      lShooter.set(ControlMode.PercentOutput, actualSpeed);
       int i = 0;
       if(i++ % 10 == 0)
       {
@@ -63,12 +63,17 @@ public class Shooter extends SubsystemBase
     }
     else
     {
-      lShooter.set(0);
+      lShooter.set(ControlMode.PercentOutput, 0);
       desiredSpeed = 0;
       actualSpeed = 0;
       error = 0;
       lastError = 0;
     }
+  }
+
+  public void stop()
+  {
+    lShooter.set(ControlMode.PercentOutput, 0);
   }
 
   @Override
