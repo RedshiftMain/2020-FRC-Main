@@ -51,7 +51,7 @@ public class Drivetrain extends SubsystemBase
     lMainFalcon.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
     rMainFalcon.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
 
-    lMainFalcon.setSensorPhase(true);
+    lMainFalcon.setInverted(true);
 
     lMainFalcon.setNeutralMode(NeutralMode.Brake);
     rMainFalcon.setNeutralMode(NeutralMode.Brake);

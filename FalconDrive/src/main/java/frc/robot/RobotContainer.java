@@ -53,9 +53,9 @@ public class RobotContainer
   private final Drivetrain drivetrain = new Drivetrain();
   //needs to be implemented
   //private final Elevator elevator = new Elevator();
-  private final Feeder feeder = new Feeder();
-  private final Intake intake = new Intake();
-  private final Magazine magazine = new Magazine();
+  //private final Feeder feeder = new Feeder();
+  //private final Intake intake = new Intake();
+  //private final Magazine magazine = new Magazine();
   private final Shooter shooter = new Shooter();
   //might need to be implemented
   //private final Spinner spinner = new Spinner();
@@ -64,7 +64,7 @@ public class RobotContainer
   private final Joystick stick2 = new Joystick(1);
 
   //shoots the ball from line
-  Command shootSequence = new InstantCommand(() -> shooter.shoot(), shooter)
+  /*Command shootSequence = new InstantCommand(() -> shooter.shoot(), shooter)
                             .andThen(new WaitUntilCommand(() -> shooter.atSpeed()))
                             .andThen(() -> feeder.feed(), feeder)
                             .andThen(() -> magazine.load(), magazine);
@@ -79,15 +79,15 @@ public class RobotContainer
   Command kill = new InstantCommand(() -> intake.stop(), intake)
                   .andThen(() -> shooter.stop(), shooter)
                   .andThen(() -> magazine.stop(), magazine)
-                  .andThen(() -> feeder.stop(), feeder);
+                  .andThen(() -> feeder.stop(), feeder);*/
 
   //centers on vision target
-  Command visionTrack = new VSimpleTurn(drivetrain);
+  //Command visionTrack = new VSimpleTurn(drivetrain);
 
   public RobotContainer() 
   {
     //drive command
-    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(stick1.getRawAxis(1)*SpeedConstants.driveSpeed, -stick1.getRawAxis(4)*SpeedConstants.driveSpeed), drivetrain));
+    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(stick1.getRawAxis(4)*SpeedConstants.driveSpeed, -stick1.getRawAxis(1)*SpeedConstants.driveSpeed), drivetrain));
     configureButtonBindings();
   }
 
@@ -114,12 +114,12 @@ public class RobotContainer
     back2 = new JoystickButton(stick2, 7);
     start2 = new JoystickButton(stick2, 8);
 
-    x1.whenPressed(shootFastSequence).whenReleased(kill);
+    /*x1.whenPressed(shootFastSequence).whenReleased(kill);
     lb1.whenPressed(shootSequence).whenReleased(kill);
     rb1.toggleWhenPressed(new StartEndCommand(() -> intake.outtake(), () -> intake.stop(), intake));
     a1.toggleWhenPressed(new VSimpleTurn(drivetrain));
     back1.toggleWhenPressed(new StartEndCommand(() -> intake.unploy(), () -> intake.deploy(), intake));
-    start1.whenPressed(kill);
+    start1.whenPressed(kill);*/
 
     //needs to be tested
     //shoots the ball from trench
@@ -127,7 +127,7 @@ public class RobotContainer
     
     //testing commands only
     b1.toggleWhenPressed(new StartEndCommand(() -> shooter.shootFast(), () -> shooter.stop(), shooter));
-    y1.toggleWhenPressed(new StartEndCommand(() -> magazine.load(), () -> magazine.stop(), magazine));
+    //y1.toggleWhenPressed(new StartEndCommand(() -> magazine.load(), () -> magazine.stop(), magazine));
   }
 
   public Command getAutonomousCommand() 
@@ -146,17 +146,19 @@ public class RobotContainer
             .addConstraint(autoVoltageConstraint);
 
     //simple forward command?
-    Trajectory basic = TrajectoryGenerator.generateTrajectory(
+    Trajectory forward = TrajectoryGenerator.generateTrajectory(
       new Pose2d(0, 0, new Rotation2d(0)),
-      List.of(new Translation2d(0.1, 0)),
-      new Pose2d(0.2, 0, new Rotation2d(0)),
+      List.of(new Translation2d(0.25, 0)),
+      new Pose2d(0.5, 0, new Rotation2d(0)),
       config);
 
     //translates trajectory to current robot pose
-    RamseteCommand forward = createRamsete(basic.relativeTo(drivetrain.getPose()));
+    RamseteCommand aForward = createRamsete(forward.relativeTo(drivetrain.getPose()));
   
     //runs trajectory, stops robot, aims with vision, shoots
-    return forward.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andThen(new VSimpleTurn(drivetrain)).andThen(shootSequence);
+    return aForward.andThen(() -> drivetrain.tankDriveVolts(0, 0));
+    //return aForward.andThen(aBackward).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+    //return auto.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andt;//.andThen(new VSimpleTurn(drivetrain));//.andThen(shootSequence);
   }
 
   private RamseteCommand createRamsete(Trajectory trajectory)

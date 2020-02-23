@@ -63,6 +63,7 @@ public class VSimpleTurn extends CommandBase {
           steer = -VisionConstants.maxSteer;
         }
 
+        //BORKE MAKE SURE DIRECTION IS CORRECT
         drivetrain.drive(speed, -steer);
     }
   }

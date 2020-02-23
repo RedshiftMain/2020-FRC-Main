@@ -51,21 +51,22 @@ public final class Constants
     }
     public static class AutoConstants
     {
-        public static final double ksVolts = .332;
-        public static final double kvVoltSecondsPerMeter = 0.0116;
-        public static final double kaVoltSecondsSquaredPerMeter = 0.000561;
-        public static final double kPDriveVel = .1111;
-        //0.0101 kp
-        public static final double kTrackwidthMeters = 174.70918916202316;
+        public static final double ksVolts = .193;
+        public static final double kvVoltSecondsPerMeter = 2.93;
+        public static final double kaVoltSecondsSquaredPerMeter = 0.245;
+        public static final double kPDriveVel = .00293;
+        //possible 42, 0.00293, 0.492, 0.25
+        public static final double kTrackwidthMeters = 0.641241342;
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
-        public static final double kMaxSpeedMetersPerSecond = 3.56;
-        public static final double kMaxAccelerationMetersPerSecondSquared = 9.1;
+        public static final double kMaxSpeedMetersPerSecond = 3;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
 
         //revolutions per count * wheel diameter (meters) / gear ratio
         public static final double distancePerPulse = (1.0 / 2048) * (.1524 * Math.PI) / 12.92;;
 
+        //deprecated maybe
         public static final double driveThreshold = 100.0;
     }
 
@@ -88,15 +89,5 @@ public final class Constants
         public static final double rampSpeed = 0.5;
         public static final double driveRampSpeed = 0.25;
         public static final double autoDriveRampSpeed = 5.0;
-    }
-
-    public static class MotionMagicConstants
-    {
-        public static final double kP = 0;
-        public static final double kI = 0;
-        public static final double kD = 0;
-        public static final double kF = 0.06224994295276488932836388529703;
-        public static final int kCruiseVelocity = 6573;
-        public static final int kMaxAcceleration = 6573;
     }
 }
