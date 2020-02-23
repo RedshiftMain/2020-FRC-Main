@@ -7,11 +7,14 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
+//PROBABLY DEPRECATED
 public class ASimple extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -19,6 +22,7 @@ public class ASimple extends CommandBase {
 
   private double speed = 0;
   private double error = 0;
+  private double sum = 0;
   private final double desiredDist;
 
   public ASimple(Drivetrain drive, double dist) 
@@ -32,13 +36,19 @@ public class ASimple extends CommandBase {
   public void initialize() 
   {
     drivetrain.reset();
+    
   }
 
   @Override
   public void execute() 
   {
     error = desiredDist-drivetrain.leftEncoder();
-    speed = .01*error;
+    speed = .00006*error+sum;
+
+    sum += .000000 * error;
+
+    SmartDashboard.putNumber("Speed", speed);
+    SmartDashboard.putNumber("Sum", sum);
 
     drivetrain.drive(speed, 0);
   }
@@ -52,6 +62,6 @@ public class ASimple extends CommandBase {
   @Override
   public boolean isFinished() 
   {
-    return speed < VisionConstants.minThreshold;
+    return Math.abs(error) < AutoConstants.driveThreshold;
   }
 }

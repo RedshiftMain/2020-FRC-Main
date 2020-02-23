@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
@@ -22,17 +23,20 @@ import frc.robot.Constants.SpeedConstants;
 
 public class Feeder extends SubsystemBase 
 {
-  private final WPI_VictorSPX lFeeder = new WPI_VictorSPX(PortConstants.feeder1);
-  private final WPI_VictorSPX rFeeder = new WPI_VictorSPX(PortConstants.feeder2);
+  private final WPI_VictorSPX lFeeder = new WPI_VictorSPX(PortConstants.lFeeder);
+  private final WPI_VictorSPX rFeeder = new WPI_VictorSPX(PortConstants.rFeeder);
 
-  private final DigitalInput beamBreak = new DigitalInput(PortConstants.beamSensor);
+  //private final DigitalInput beamBreak = new DigitalInput(PortConstants.beamSensor);
 
-  private boolean holdingBall = beamBreak.get();
+  private boolean holdingBall = false;
 
   public Feeder()
   {
     rFeeder.follow(lFeeder);
-    rFeeder.setInverted(InvertType.OpposeMaster);
+    rFeeder.setInverted(InvertType.FollowMaster);
+
+    lFeeder.setNeutralMode(NeutralMode.Brake);
+    lFeeder.configOpenloopRamp(0.5);
   }
 
   public void feed()
@@ -53,6 +57,6 @@ public class Feeder extends SubsystemBase
   @Override
   public void periodic() 
   {
-    holdingBall = beamBreak.get();
+    //holdingBall = beamBreak.get();
   }
 }

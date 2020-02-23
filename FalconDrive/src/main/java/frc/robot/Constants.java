@@ -24,56 +24,79 @@ public final class Constants
     {
         public static final int lMainFalcon = 1;
         public static final int rMainFalcon = 3;
-        public static final int lSubFalcon = 2;
-        public static final int rSubFalcon = 4;
+        public static final int lSubFalcon  = 2;
+        public static final int rSubFalcon  = 4;
 
-        public static final int intake = 5;
-        public static final int magazine = 6;
-        public static final int feeder1 = 7;
-        public static final int feeder2 = 8;
+        public static final int intake    = 5;
+        public static final int magazine  = 6;
+        public static final int rFeeder   = 7;
+        public static final int lFeeder   = 8;
         public static final int elevator1 = 9;
         public static final int elevator2 = 10;
-        public static final int lShooter = 11;
-        public static final int rShooter = 12;
-        public static final int spinner = 13;
+        public static final int lShooter  = 11;
+        public static final int rShooter  = 12;
+        public static final int spinner   = 13;
 
-        public static final int beamSensor = 14;
-        public static final int fLeftPiston = 15;
-        public static final int rLeftPiston = 16;
-        public static final int fRightPiston = 17;
-        public static final int rRightPiston = 18;
+        public static final int beamSensor   = 14;
+        public static final int fPiston  = 0;
+        public static final int rPiston  = 1;
     }
     public static class VisionConstants
     {
         public static final double kP = 0.05;
         public static final double kI = 0.001;
 
-        public static final double minThreshold = .05;
-        public static final double maxSteer = .5;
+        public static final double minThreshold = .01;
+        public static final double maxSteer     = .5;
     }
     public static class AutoConstants
     {
         public static final double ksVolts = .332;
         public static final double kvVoltSecondsPerMeter = 0.0116;
         public static final double kaVoltSecondsSquaredPerMeter = 0.000561;
-        public static final double kPDriveVel = .0553;
+        public static final double kPDriveVel = .1111;
+        //0.0101 kp
         public static final double kTrackwidthMeters = 174.70918916202316;
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
         public static final double kMaxSpeedMetersPerSecond = 3.56;
         public static final double kMaxAccelerationMetersPerSecondSquared = 9.1;
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
-        public static final double distancePerPulse = 0.0002337786720;
+
+        //revolutions per count * wheel diameter (meters) / gear ratio
+        public static final double distancePerPulse = (1.0 / 2048) * (.1524 * Math.PI) / 12.92;;
+
+        public static final double driveThreshold = 100.0;
     }
 
     public static class SpeedConstants
     {
-        public static final double driveSpeed = 1.0;
-        public static final double shootSpeed = 1.0;
-        public static final double magazineSpeed = 1.0;
-        public static final double intakeSpeed = 1.0;
-        public static final double feederSpeed = 1.0;
-        public static final double elevatorSpeed = 1.0;
-        public static final double spinnerSpeed = 1.0;
+        public static final double driveSpeed = 0.8;
+
+        public static final double minShootSpeed = 0.9;
+        public static final double maxShootSpeed = 1.0;
+        //needs to be experimentally found
+        public static final double minArea = 0;
+        public static final double maxArea = 1.0;
+
+        public static final double magazineSpeed = 0.5;
+        public static final double intakeSpeed = 0.8;
+        public static final double feederSpeed = -1.0;
+        public static final double elevatorSpeed = 0.5;
+        public static final double spinnerSpeed = 0.5;
+
+        public static final double rampSpeed = 0.5;
+        public static final double driveRampSpeed = 0.25;
+        public static final double autoDriveRampSpeed = 5.0;
+    }
+
+    public static class MotionMagicConstants
+    {
+        public static final double kP = 0;
+        public static final double kI = 0;
+        public static final double kD = 0;
+        public static final double kF = 0.06224994295276488932836388529703;
+        public static final int kCruiseVelocity = 6573;
+        public static final int kMaxAcceleration = 6573;
     }
 }

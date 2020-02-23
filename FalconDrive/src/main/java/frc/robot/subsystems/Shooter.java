@@ -12,68 +12,60 @@ import javax.lang.model.util.ElementScanner6;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.PortConstants;
+import frc.robot.Constants.SpeedConstants;
 
 public class Shooter extends SubsystemBase 
 {
   private final WPI_TalonFX lShooter = new WPI_TalonFX(PortConstants.lShooter);
   private final WPI_TalonFX rShooter = new WPI_TalonFX(PortConstants.rShooter);
 
-  private double desiredSpeed;
-  private double actualSpeed;
-  private double error;
-  private double lastError;
-  private final double kP = 0.09;
-  private final double kD = 0.06;
+  private double lastSpeed;
 
   public Shooter()
   {
     rShooter.follow(lShooter);
     rShooter.setInverted(InvertType.OpposeMaster);
 
-    //lShooter.configClosedloopRamp(1);
-
-    desiredSpeed = 0;
-    actualSpeed = 0;
-    error = 0;
-    lastError = 0;
+    lShooter.configOpenloopRamp(SpeedConstants.rampSpeed);
+    lShooter.setNeutralMode(NeutralMode.Brake);
   }
 
-  public void shoot(double speed)
+  public void shoot()
   {
-    if(speed > 0)
-    {
-      desiredSpeed = speed;
-      error = desiredSpeed - actualSpeed;
-      actualSpeed += kP*error - kD*(Math.abs(error-lastError));
-      actualSpeed = Math.max(0, actualSpeed);
+    lShooter.set(ControlMode.PercentOutput, SpeedConstants.minShootSpeed);
+  }
 
-      lShooter.set(ControlMode.PercentOutput, actualSpeed);
-      int i = 0;
-      if(i++ % 10 == 0)
-      {
-        lastError = error;
-      }
-    }
-    else
-    {
-      lShooter.set(ControlMode.PercentOutput, 0);
-      desiredSpeed = 0;
-      actualSpeed = 0;
-      error = 0;
-      lastError = 0;
-    }
+  public void shootSpeed(double speed)
+  {
+    lShooter.set(ControlMode.PercentOutput, speed);
+  }
+
+  public void shootFast()
+  {
+    lShooter.set(ControlMode.PercentOutput, SpeedConstants.maxShootSpeed);
   }
 
   public void stop()
   {
     lShooter.set(ControlMode.PercentOutput, 0);
+  }
+
+  //needs to be tested
+  public boolean atSpeed()
+  {
+    double currentSpeed = lShooter.getSelectedSensorVelocity();
+
+    return currentSpeed > lastSpeed;
+    //return lShooter.getSelectedSensorVelocity() > 16000;
   }
 
   @Override

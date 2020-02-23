@@ -26,7 +26,7 @@ import frc.robot.Constants.SpeedConstants;
 public class Spinner extends SubsystemBase 
 {  
     private final WPI_TalonSRX spinner = new WPI_TalonSRX(PortConstants.spinner);
-    private final ColorSensorV3 sensor = new ColorSensorV3(I2C.Port.kOnboard);
+    //private final ColorSensorV3 sensor = new ColorSensorV3(I2C.Port.kOnboard);
     private SpinState state = SpinState.Color;
 
     public Spinner()

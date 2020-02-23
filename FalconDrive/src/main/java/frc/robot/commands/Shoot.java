@@ -7,75 +7,69 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.SpeedConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Shooter;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class VSimpleTurn extends CommandBase {
+public class Shoot extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final Drivetrain drivetrain;
+  private final Shooter shooter;
 
-  private double tx;
+  private double ta;
   private double tv;
   private double speed;
-  private double steer;
-  private double sum;
 
-  public VSimpleTurn(Drivetrain drive) 
+  public Shoot(Shooter shoot) 
   {
-    drivetrain = drive;
-    addRequirements(drivetrain);
+    shooter = shoot;
+    addRequirements(shooter);
   }
 
   @Override
   public void initialize() 
   {
-      sum = 0;
-      speed = 0;
-      steer = 0;
+    speed = 0;
   }
 
   @Override
   public void execute() 
   {
     tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
 
     if(tv < 1.0)
     {
-        drivetrain.drive(0, 0);
+        shooter.stop();
     }
     else
     {
-        //P-Loop
-        steer = tx*VisionConstants.kP+sum;
-        //I-Loop
-        sum += tx*VisionConstants.kI;
-
-        if(steer > VisionConstants.maxSteer)
+        speed = SpeedConstants.minShootSpeed + (SpeedConstants.maxShootSpeed - SpeedConstants.minShootSpeed) / (SpeedConstants.maxArea - SpeedConstants.minArea) * ta;
+        if(speed > SpeedConstants.maxShootSpeed)
         {
-          steer = VisionConstants.maxSteer;
+          speed = SpeedConstants.maxShootSpeed;
         }
-        if(steer < -VisionConstants.maxSteer)
+        if(speed < SpeedConstants.minShootSpeed)
         {
-          steer = -VisionConstants.maxSteer;
+          speed = SpeedConstants.minShootSpeed;
         }
 
-        drivetrain.drive(speed, -steer);
+        shooter.shootSpeed(speed);
     }
   }
 
   @Override
   public void end(boolean interrupted) 
   {
-    drivetrain.drive(0, 0);
+    shooter.stop();
   }
 
   @Override
   public boolean isFinished() 
   {
-    return Math.abs(tx) < VisionConstants.minThreshold;
+    return false;
   }
 }

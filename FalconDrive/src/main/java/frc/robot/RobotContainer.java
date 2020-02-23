@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -42,32 +43,58 @@ import edu.wpi.first.wpilibj2.command.PerpetualCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer 
 {
   private final Drivetrain drivetrain = new Drivetrain();
-  private final Elevator elevator = new Elevator();
+  //needs to be implemented
+  //private final Elevator elevator = new Elevator();
   private final Feeder feeder = new Feeder();
   private final Intake intake = new Intake();
   private final Magazine magazine = new Magazine();
   private final Shooter shooter = new Shooter();
-  private final Spinner spinner = new Spinner();
+  //might need to be implemented
+  //private final Spinner spinner = new Spinner();
   
   private final Joystick stick1 = new Joystick(0);
   private final Joystick stick2 = new Joystick(1);
 
+  //shoots the ball from line
+  Command shootSequence = new InstantCommand(() -> shooter.shoot(), shooter)
+                            .andThen(new WaitUntilCommand(() -> shooter.atSpeed()))
+                            .andThen(() -> feeder.feed(), feeder)
+                            .andThen(() -> magazine.load(), magazine);
+
+  //shoots the ball from trench
+  Command shootFastSequence = new InstantCommand(() -> shooter.shootFast(), shooter)
+                            .andThen(new WaitUntilCommand(() -> shooter.atSpeed()))
+                            .andThen(() -> feeder.feed(), feeder)
+                            .andThen(() -> magazine.load(), magazine);
+
+  //stops all motors except drivetrain
+  Command kill = new InstantCommand(() -> intake.stop(), intake)
+                  .andThen(() -> shooter.stop(), shooter)
+                  .andThen(() -> magazine.stop(), magazine)
+                  .andThen(() -> feeder.stop(), feeder);
+
+  //centers on vision target
+  Command visionTrack = new VSimpleTurn(drivetrain);
+
   public RobotContainer() 
   {
-    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(stick1.getRawAxis(1)*SpeedConstants.driveSpeed, stick1.getRawAxis(4)*SpeedConstants.driveSpeed), drivetrain));
+    //drive command
+    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(stick1.getRawAxis(1)*SpeedConstants.driveSpeed, -stick1.getRawAxis(4)*SpeedConstants.driveSpeed), drivetrain));
     configureButtonBindings();
   }
 
   private void configureButtonBindings() 
   {
-    JoystickButton a1, b1, x1, y1, start1, back1, lb1, rb1, lt1, rt1,
-                   a2, b2, x2, y2, start2, back2, lb2, rb2, lt2, rt2;
+    JoystickButton a1, b1, x1, y1, start1, back1, lb1, rb1, lt1,
+                   a2, b2, x2, y2, start2, back2, lb2, rb2, lt2;
 
     a1 = new JoystickButton(stick1, 1);
     b1 = new JoystickButton(stick1, 2);
@@ -77,7 +104,6 @@ public class RobotContainer
     rb1 = new JoystickButton(stick1, 6);
     back1 = new JoystickButton(stick1, 7);
     start1 = new JoystickButton(stick1, 8);
-    rt1 = new JoystickButton(stick1, 9);
 
     a2 = new JoystickButton(stick2, 1);
     b2 = new JoystickButton(stick2, 2);
@@ -87,23 +113,21 @@ public class RobotContainer
     rb2 = new JoystickButton(stick2, 6);
     back2 = new JoystickButton(stick2, 7);
     start2 = new JoystickButton(stick2, 8);
-    
-    Command shoot = new RunCommand(() -> shooter.shoot(SpeedConstants.shootSpeed), shooter).andThen(() -> shooter.stop());
-    Command runMag = new RunCommand(() -> magazine.load(), magazine).andThen(() -> magazine.stop());
-    Command runFeeder = new RunCommand(() -> feeder.feed(), feeder).andThen(() -> feeder.stop());
-    Command transferBall = runMag.alongWith(runFeeder);
-    Command shootBall = shoot.alongWith(transferBall);
-    Command loadSequence = new ConditionalCommand(runMag, transferBall, feeder::hasBall);
 
+    x1.whenPressed(shootFastSequence).whenReleased(kill);
+    lb1.whenPressed(shootSequence).whenReleased(kill);
+    rb1.toggleWhenPressed(new StartEndCommand(() -> intake.outtake(), () -> intake.stop(), intake));
     a1.toggleWhenPressed(new VSimpleTurn(drivetrain));
-    rb1.toggleWhenPressed(new RunCommand(() -> intake.intake()));
-    rt1.toggleWhenPressed(new RunCommand(() -> intake.outtake()));
+    back1.toggleWhenPressed(new StartEndCommand(() -> intake.unploy(), () -> intake.deploy(), intake));
+    start1.whenPressed(kill);
 
-    back2.toggleWhenPressed(loadSequence);
-    start2.toggleWhenPressed(shootBall);
-
-    rb2.toggleWhenPressed(new RunCommand(() -> elevator.up()));
-    lb2.toggleWhenPressed(new RunCommand(() -> elevator.down()));
+    //needs to be tested
+    //shoots the ball from trench
+    
+    
+    //testing commands only
+    b1.toggleWhenPressed(new StartEndCommand(() -> shooter.shootFast(), () -> shooter.stop(), shooter));
+    y1.toggleWhenPressed(new StartEndCommand(() -> magazine.load(), () -> magazine.stop(), magazine));
   }
 
   public Command getAutonomousCommand() 
@@ -121,14 +145,18 @@ public class RobotContainer
             .setKinematics(Constants.AutoConstants.kDriveKinematics)
             .addConstraint(autoVoltageConstraint);
 
-    RamseteCommand forward = createRamsete(TrajectoryGenerator.generateTrajectory(
+    //simple forward command?
+    Trajectory basic = TrajectoryGenerator.generateTrajectory(
       new Pose2d(0, 0, new Rotation2d(0)),
       List.of(new Translation2d(0.1, 0)),
       new Pose2d(0.2, 0, new Rotation2d(0)),
-      config));
+      config);
+
+    //translates trajectory to current robot pose
+    RamseteCommand forward = createRamsete(basic.relativeTo(drivetrain.getPose()));
   
-    //return forward.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andThen(() -> drivetrain.drive(0, 0));
-    return new ASimple(drivetrain, 100);
+    //runs trajectory, stops robot, aims with vision, shoots
+    return forward.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andThen(new VSimpleTurn(drivetrain)).andThen(shootSequence);
   }
 
   private RamseteCommand createRamsete(Trajectory trajectory)
