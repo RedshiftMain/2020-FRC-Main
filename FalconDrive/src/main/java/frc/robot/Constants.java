@@ -43,7 +43,7 @@ public final class Constants
     }
     public static class VisionConstants
     {
-        public static final double kP = 0.05;
+        public static final double kP = 0.03;
         public static final double kI = 0.001;
 
         public static final double minThreshold = .01;
@@ -51,23 +51,20 @@ public final class Constants
     }
     public static class AutoConstants
     {
-        public static final double ksVolts = .193;
-        public static final double kvVoltSecondsPerMeter = 2.93;
-        public static final double kaVoltSecondsSquaredPerMeter = 0.245;
-        public static final double kPDriveVel = .00293;
-        //possible 42, 0.00293, 0.492, 0.25
-        public static final double kTrackwidthMeters = 0.641241342;
+        public static final double ksVolts = .181;//.193
+        public static final double kvVoltSecondsPerMeter = 2.95;//2.93
+        public static final double kaVoltSecondsSquaredPerMeter = 0.355;//.245
+        public static final double kPDriveVel = .00358; //0.305, 0.00358, 0.601
+        //possible 0.00293, 0.492, 0.25
+        public static final double kTrackwidthMeters = 0.6381953640463388;
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
-        public static final double kMaxSpeedMetersPerSecond = 3;
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+        public static final double kMaxSpeedMetersPerSecond = 1;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 1;
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
 
         //revolutions per count * wheel diameter (meters) / gear ratio
-        public static final double distancePerPulse = (1.0 / 2048) * (.1524 * Math.PI) / 12.92;;
-
-        //deprecated maybe
-        public static final double driveThreshold = 100.0;
+        public static final double distancePerPulse = (1.0 / 2048) * (.1524 * Math.PI) / 12.92;
     }
 
     public static class SpeedConstants

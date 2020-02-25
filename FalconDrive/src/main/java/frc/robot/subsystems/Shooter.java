@@ -64,7 +64,7 @@ public class Shooter extends SubsystemBase
   {
     double currentSpeed = lShooter.getSelectedSensorVelocity();
 
-    return currentSpeed > lastSpeed;
+    return currentSpeed <= lastSpeed;
     //return lShooter.getSelectedSensorVelocity() > 16000;
   }
 

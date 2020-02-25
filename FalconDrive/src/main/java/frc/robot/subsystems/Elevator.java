@@ -22,8 +22,8 @@ public class Elevator extends SubsystemBase
 {   
     private PosState elevatorState = PosState.Default;
 
-    private final WPI_TalonFX lElevator = new WPI_TalonFX(PortConstants.elevator1);
-    private final WPI_TalonFX rElevator = new WPI_TalonFX(PortConstants.elevator2);
+    private final WPI_TalonSRX lElevator = new WPI_TalonSRX(PortConstants.elevator1);
+    private final WPI_TalonSRX rElevator = new WPI_TalonSRX(PortConstants.elevator2);
 
     public Elevator()
     {

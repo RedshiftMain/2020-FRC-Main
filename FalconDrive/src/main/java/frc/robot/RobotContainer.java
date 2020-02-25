@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.Constants.SpeedConstants;
-import frc.robot.commands.ASimple;
 import frc.robot.commands.VSimpleTurn;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
@@ -51,11 +50,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer 
 {
   private final Drivetrain drivetrain = new Drivetrain();
-  //needs to be implemented
-  //private final Elevator elevator = new Elevator();
-  //private final Feeder feeder = new Feeder();
-  //private final Intake intake = new Intake();
-  //private final Magazine magazine = new Magazine();
+  private final Elevator elevator = new Elevator();
+  private final Feeder feeder = new Feeder();
+  private final Intake intake = new Intake();
+  private final Magazine magazine = new Magazine();
   private final Shooter shooter = new Shooter();
   //might need to be implemented
   //private final Spinner spinner = new Spinner();
@@ -64,7 +62,7 @@ public class RobotContainer
   private final Joystick stick2 = new Joystick(1);
 
   //shoots the ball from line
-  /*Command shootSequence = new InstantCommand(() -> shooter.shoot(), shooter)
+  Command shootSequence = new InstantCommand(() -> shooter.shoot(), shooter)
                             .andThen(new WaitUntilCommand(() -> shooter.atSpeed()))
                             .andThen(() -> feeder.feed(), feeder)
                             .andThen(() -> magazine.load(), magazine);
@@ -79,10 +77,10 @@ public class RobotContainer
   Command kill = new InstantCommand(() -> intake.stop(), intake)
                   .andThen(() -> shooter.stop(), shooter)
                   .andThen(() -> magazine.stop(), magazine)
-                  .andThen(() -> feeder.stop(), feeder);*/
+                  .andThen(() -> feeder.stop(), feeder);
 
   //centers on vision target
-  //Command visionTrack = new VSimpleTurn(drivetrain);
+  Command visionTrack = new VSimpleTurn(drivetrain);
 
   public RobotContainer() 
   {
@@ -114,20 +112,17 @@ public class RobotContainer
     back2 = new JoystickButton(stick2, 7);
     start2 = new JoystickButton(stick2, 8);
 
-    /*x1.whenPressed(shootFastSequence).whenReleased(kill);
+    x1.whenPressed(shootFastSequence).whenReleased(kill);
     lb1.whenPressed(shootSequence).whenReleased(kill);
     rb1.toggleWhenPressed(new StartEndCommand(() -> intake.outtake(), () -> intake.stop(), intake));
     a1.toggleWhenPressed(new VSimpleTurn(drivetrain));
     back1.toggleWhenPressed(new StartEndCommand(() -> intake.unploy(), () -> intake.deploy(), intake));
-    start1.whenPressed(kill);*/
-
-    //needs to be tested
-    //shoots the ball from trench
+    start1.whenPressed(kill);
     
     
     //testing commands only
     b1.toggleWhenPressed(new StartEndCommand(() -> shooter.shootFast(), () -> shooter.stop(), shooter));
-    //y1.toggleWhenPressed(new StartEndCommand(() -> magazine.load(), () -> magazine.stop(), magazine));
+    y1.toggleWhenPressed(new StartEndCommand(() -> magazine.load(), () -> magazine.stop(), magazine));
   }
 
   public Command getAutonomousCommand() 
@@ -145,15 +140,17 @@ public class RobotContainer
             .setKinematics(Constants.AutoConstants.kDriveKinematics)
             .addConstraint(autoVoltageConstraint);
 
-    //simple forward command?
-    Trajectory forward = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(0, 0, new Rotation2d(0)),
-      List.of(new Translation2d(0.25, 0)),
-      new Pose2d(0.5, 0, new Rotation2d(0)),
-      config);
+    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+              new Pose2d(0, 0, new Rotation2d(0)),
+              List.of(
+                  new Translation2d(.5, 1),
+                  new Translation2d(.75, 2)
+              ),
+              new Pose2d(1, 0, new Rotation2d(0)),
+              config
+          );
 
-    //translates trajectory to current robot pose
-    RamseteCommand aForward = createRamsete(forward.relativeTo(drivetrain.getPose()));
+    RamseteCommand aForward = createRamsete(exampleTrajectory);
   
     //runs trajectory, stops robot, aims with vision, shoots
     return aForward.andThen(() -> drivetrain.tankDriveVolts(0, 0));
