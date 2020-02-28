@@ -36,7 +36,7 @@ public class Shooter extends SubsystemBase
     rShooter.setInverted(InvertType.OpposeMaster);
 
     lShooter.configOpenloopRamp(SpeedConstants.rampSpeed);
-    lShooter.setNeutralMode(NeutralMode.Brake);
+    lShooter.setNeutralMode(NeutralMode.Coast);
   }
 
   public void shoot()
@@ -62,10 +62,10 @@ public class Shooter extends SubsystemBase
   //needs to be tested
   public boolean atSpeed()
   {
-    double currentSpeed = lShooter.getSelectedSensorVelocity();
+    //double currentSpeed = lShooter.getSelectedSensorVelocity();
 
-    return currentSpeed <= lastSpeed;
-    //return lShooter.getSelectedSensorVelocity() > 16000;
+    //return currentSpeed <= lastSpeed;
+    return lShooter.getSelectedSensorVelocity() > 16000;
   }
 
   @Override

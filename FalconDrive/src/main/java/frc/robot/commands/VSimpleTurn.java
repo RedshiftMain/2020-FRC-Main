@@ -19,9 +19,11 @@ public class VSimpleTurn extends CommandBase {
 
   private double tx;
   private double tv;
-  private double speed;
+  //private double speed;
   private double steer;
   private double sum;
+  private int fin_time;
+  
 
   public VSimpleTurn(Drivetrain drive) 
   {
@@ -33,7 +35,7 @@ public class VSimpleTurn extends CommandBase {
   public void initialize() 
   {
       sum = 0;
-      speed = 0;
+      //speed = 0;
       steer = 0;
   }
 
@@ -64,7 +66,7 @@ public class VSimpleTurn extends CommandBase {
         }
 
         //BORKE MAKE SURE DIRECTION IS CORRECT
-        drivetrain.drive(speed, -steer);
+        //drivetrain.drive(speed, -steer);
     }
   }
 

@@ -10,50 +10,46 @@ package frc.robot.commands;
 import frc.robot.Constants.SpeedConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class Shoot extends CommandBase {
+public class ShootForTime extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Shooter shooter;
+  private final Magazine magazine;
+  private final Feeder feeder;
+  private final Timer timer = new Timer();
+  private final double endTime;
 
-  private double ta;
-  private double tv;
-  private double speed;
-
-  public Shoot(Shooter shoot) 
+  public ShootForTime(double time, Shooter shoot, Magazine magazine, Feeder feeder) 
   {
     shooter = shoot;
-    addRequirements(shooter);
+    this.magazine = magazine;
+    this.feeder = feeder;
+    endTime = time;
+    addRequirements(shooter, magazine, feeder);
   }
 
   @Override
   public void initialize() 
   {
-    speed = 0;
+    shooter.shoot();
+    timer.reset();
+    timer.start();
   }
 
   @Override
   public void execute() 
   {
-    tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
-
-    if(tv < 1.0)
+    if(shooter.atSpeed())
     {
-        shooter.stop();
-    }
-    else
-    {
-        speed = SpeedConstants.minShootSpeed + (SpeedConstants.maxShootSpeed - SpeedConstants.minShootSpeed) * (ta-SpeedConstants.minArea) / (SpeedConstants.maxArea - SpeedConstants.minArea);
-        if(speed > SpeedConstants.maxShootSpeed)
-          speed = SpeedConstants.maxShootSpeed;
-        if(speed < SpeedConstants.minShootSpeed)
-          speed = SpeedConstants.minShootSpeed;
-
-        shooter.shootSpeed(speed);
+      magazine.load();
+      feeder.feed();
     }
   }
 
@@ -61,11 +57,13 @@ public class Shoot extends CommandBase {
   public void end(boolean interrupted) 
   {
     shooter.stop();
+    magazine.stop();
+    feeder.stop();
   }
 
   @Override
   public boolean isFinished() 
   {
-    return false;
+    return timer.get() > endTime;
   }
 }

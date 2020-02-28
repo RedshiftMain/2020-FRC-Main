@@ -22,11 +22,14 @@ import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.Constants.SpeedConstants;
+import frc.robot.commands.Auto;
+import frc.robot.commands.ShootForTime;
 import frc.robot.commands.VSimpleTurn;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
@@ -119,7 +122,6 @@ public class RobotContainer
     back1.toggleWhenPressed(new StartEndCommand(() -> intake.unploy(), () -> intake.deploy(), intake));
     start1.whenPressed(kill);
     
-    
     //testing commands only
     b1.toggleWhenPressed(new StartEndCommand(() -> shooter.shootFast(), () -> shooter.stop(), shooter));
     y1.toggleWhenPressed(new StartEndCommand(() -> magazine.load(), () -> magazine.stop(), magazine));
@@ -127,7 +129,7 @@ public class RobotContainer
 
   public Command getAutonomousCommand() 
   {
-    var autoVoltageConstraint =
+    /*var autoVoltageConstraint =
     new DifferentialDriveVoltageConstraint(
         new SimpleMotorFeedforward(Constants.AutoConstants.ksVolts,
                                    Constants.AutoConstants.kvVoltSecondsPerMeter,
@@ -155,11 +157,22 @@ public class RobotContainer
     //runs trajectory, stops robot, aims with vision, shoots
     return aForward.andThen(() -> drivetrain.tankDriveVolts(0, 0));
     //return aForward.andThen(aBackward).andThen(() -> drivetrain.tankDriveVolts(0, 0));
-    //return auto.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andt;//.andThen(new VSimpleTurn(drivetrain));//.andThen(shootSequence);
-  }
+    //return auto.andThen(() -> drivetrain.tankDriveVolts(0, 0)).andt;//.andThen(new VSimpleTurn(drivetrain));//.andThen(shootSequence);*/
+    //return new Auto(drivetrain).andThen(visionTrack).andThen(new PerpetualCommand(shootSequence));
+    Command auto = new ShootForTime(5.0, shooter, magazine, feeder).andThen(new Auto(drivetrain));
+    return visionTrack.andThen(auto);
+  } 
 
   private RamseteCommand createRamsete(Trajectory trajectory)
   {
+    RamseteController disabledRamsete = new RamseteController() {
+      @Override
+      public ChassisSpeeds calculate(Pose2d currentPose, Pose2d poseRef, double linearVelocityRefMeters,
+              double angularVelocityRefRadiansPerSecond) {
+          return new ChassisSpeeds(linearVelocityRefMeters, 0.0, angularVelocityRefRadiansPerSecond);
+      }
+    };
+
     return new RamseteCommand(
               trajectory,
               drivetrain::getPose,

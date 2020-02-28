@@ -7,6 +7,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.SpeedConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
@@ -14,58 +15,41 @@ import frc.robot.subsystems.Shooter;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class Shoot extends CommandBase {
+public class Auto extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final Shooter shooter;
+  private final Drivetrain drivetrain;
 
-  private double ta;
-  private double tv;
-  private double speed;
-
-  public Shoot(Shooter shoot) 
+  public Auto(Drivetrain drive) 
   {
-    shooter = shoot;
-    addRequirements(shooter);
+    drivetrain = drive;
+    drivetrain.setRamp(SpeedConstants.autoDriveRampSpeed);
+    addRequirements(drivetrain);
   }
 
   @Override
   public void initialize() 
   {
-    speed = 0;
+    drivetrain.reset();
   }
 
   @Override
   public void execute() 
   {
-    tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-    ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
-
-    if(tv < 1.0)
-    {
-        shooter.stop();
-    }
-    else
-    {
-        speed = SpeedConstants.minShootSpeed + (SpeedConstants.maxShootSpeed - SpeedConstants.minShootSpeed) * (ta-SpeedConstants.minArea) / (SpeedConstants.maxArea - SpeedConstants.minArea);
-        if(speed > SpeedConstants.maxShootSpeed)
-          speed = SpeedConstants.maxShootSpeed;
-        if(speed < SpeedConstants.minShootSpeed)
-          speed = SpeedConstants.minShootSpeed;
-
-        shooter.shootSpeed(speed);
-    }
+    drivetrain.drive(0, -SpeedConstants.autoDriveSpeed);
+    System.out.println(drivetrain.leftEncoder());
   }
 
   @Override
   public void end(boolean interrupted) 
   {
-    shooter.stop();
+    drivetrain.setRamp(SpeedConstants.driveRampSpeed);
+    drivetrain.drive(0, 0);
   }
 
   @Override
   public boolean isFinished() 
   {
-    return false;
+    return -drivetrain.leftEncoder() > AutoConstants.driveDistance;
   }
 }

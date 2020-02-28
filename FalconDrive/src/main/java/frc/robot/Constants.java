@@ -38,16 +38,18 @@ public final class Constants
         public static final int spinner   = 13;
 
         public static final int beamSensor   = 14;
-        public static final int fPiston  = 0;
-        public static final int rPiston  = 1;
+        public static final int fPiston  = 5;
+        public static final int rPiston  = 4;
     }
     public static class VisionConstants
     {
-        public static final double kP = 0.03;
+        public static final double kP = 0.0015;
         public static final double kI = 0.001;
 
-        public static final double minThreshold = .01;
-        public static final double maxSteer     = .5;
+        public static final double minThreshold = .1;
+        public static final double maxSteer     = .4;
+        public static final double minDriveSpeed = .26;
+        public static final double offset = 4.235695;
     }
     public static class AutoConstants
     {
@@ -55,7 +57,7 @@ public final class Constants
         public static final double kvVoltSecondsPerMeter = 2.95;//2.93
         public static final double kaVoltSecondsSquaredPerMeter = 0.355;//.245
         public static final double kPDriveVel = .00358; //0.305, 0.00358, 0.601
-        //possible 0.00293, 0.492, 0.25
+        //possible 0.00293, 0.492, 0.25, 0.0462
         public static final double kTrackwidthMeters = 0.6381953640463388;
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackwidthMeters);
         public static final double kMaxSpeedMetersPerSecond = 1;
@@ -65,14 +67,17 @@ public final class Constants
 
         //revolutions per count * wheel diameter (meters) / gear ratio
         public static final double distancePerPulse = (1.0 / 2048) * (.1524 * Math.PI) / 12.92;
+        public static final double driveDistance = 1;
     }
 
     public static class SpeedConstants
     {
         public static final double driveSpeed = 0.8;
+        public static final double autoDriveSpeed = 0.4;
 
         public static final double minShootSpeed = 0.9;
         public static final double maxShootSpeed = 1.0;
+        
         //needs to be experimentally found
         public static final double minArea = 0;
         public static final double maxArea = 1.0;
@@ -85,6 +90,6 @@ public final class Constants
 
         public static final double rampSpeed = 0.5;
         public static final double driveRampSpeed = 0.25;
-        public static final double autoDriveRampSpeed = 5.0;
+        public static final double autoDriveRampSpeed = 1.0;
     }
 }

@@ -66,10 +66,10 @@ public class Drivetrain extends SubsystemBase
     lMainFalcon.configOpenloopRamp(SpeedConstants.driveRampSpeed);
     rMainFalcon.configOpenloopRamp(SpeedConstants.driveRampSpeed);
 
-    lMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
-    rMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
+    //lMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
+    //rMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
 
-    reset();
+    //reset();
   }
 
   @Override
@@ -78,8 +78,9 @@ public class Drivetrain extends SubsystemBase
     odometry.update(Rotation2d.fromDegrees(getHeading()), lMainFalcon.getSelectedSensorPosition()*AutoConstants.distancePerPulse,
                     rMainFalcon.getSelectedSensorPosition()*AutoConstants.distancePerPulse);
 
-    SmartDashboard.putNumber("REncoder", rMainFalcon.getSelectedSensorPosition());
-    SmartDashboard.putNumber("LEncoder", lMainFalcon.getSelectedSensorPosition());
+    var translation = odometry.getPoseMeters().getTranslation();
+    SmartDashboard.putNumber("REncoder", translation.getX());
+    SmartDashboard.putNumber("LEncoder", translation.getY());
   }
 
   public void drive(double speed, double steer)
@@ -89,25 +90,14 @@ public class Drivetrain extends SubsystemBase
 
   public void reset() 
   {
-    gyro.reset();
     lMainFalcon.setSelectedSensorPosition(0);
     rMainFalcon.setSelectedSensorPosition(0);
     odometry.resetPosition(odometry.getPoseMeters(), Rotation2d.fromDegrees(getHeading()));
   }
 
-  public double rightEncoder()
-  {
-    return rMainFalcon.getSelectedSensorPosition();
-  }
-
-  public double leftEncoder()
-  {
-    return lMainFalcon.getSelectedSensorPosition();
-  }
-
   private double getHeading() 
   {
-    return Math.IEEEremainder(gyro.getAngle(), 360);
+    return Math.IEEEremainder(gyro.getAngle(), 360) * (true ? -1.0 : 1.0);
   }
 
   public Pose2d getPose() 
@@ -135,5 +125,21 @@ public class Drivetrain extends SubsystemBase
   public double leftEncoderRate()
   {
     return lMainFalcon.getSelectedSensorVelocity() * AutoConstants.distancePerPulse;
+  }
+
+  public double rightEncoder()
+  {
+    return rMainFalcon.getSelectedSensorPosition() * AutoConstants.distancePerPulse;
+  }
+
+  public double leftEncoder()
+  {
+    return lMainFalcon.getSelectedSensorPosition() * AutoConstants.distancePerPulse;
+  }
+
+  public void setRamp(double seconds)
+  {
+    lMainFalcon.configOpenloopRamp(seconds);
+    rMainFalcon.configClosedloopRamp(seconds);
   }
 }
