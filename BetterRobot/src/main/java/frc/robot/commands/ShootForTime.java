@@ -8,27 +8,25 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.SpeedConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.BetterShooter;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Shooter;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ShootForTime extends CommandBase {
   
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final Shooter shooter;
+  private final BetterShooter shooter;
   private final Magazine magazine;
   private final Feeder feeder;
-  private final Timer timer = new Timer();
+
+  private double startTime;
   private final double endTime;
 
-  public ShootForTime(double time, Shooter shoot, Magazine magazine, Feeder feeder) 
+  public ShootForTime(double time, BetterShooter shoot, Magazine magazine, Feeder feeder) 
   {
-    shooter = shoot;
+    this.shooter = shoot;
     this.magazine = magazine;
     this.feeder = feeder;
     endTime = time;
@@ -38,9 +36,8 @@ public class ShootForTime extends CommandBase {
   @Override
   public void initialize() 
   {
-    shooter.shoot();
-    timer.reset();
-    timer.start();
+    shooter.shoot(SpeedConstants.minShootSpeed);
+    startTime = Timer.getFPGATimestamp();
   }
 
   @Override
@@ -48,8 +45,8 @@ public class ShootForTime extends CommandBase {
   {
     if(shooter.atSpeed())
     {
-      magazine.load();
-      feeder.feed();
+      magazine.run();
+      feeder.run();
     }
   }
 
@@ -64,6 +61,6 @@ public class ShootForTime extends CommandBase {
   @Override
   public boolean isFinished() 
   {
-    return timer.get() > endTime;
+    return Timer.getFPGATimestamp() - startTime > endTime;
   }
 }

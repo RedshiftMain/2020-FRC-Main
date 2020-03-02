@@ -7,18 +7,12 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -39,19 +33,19 @@ public class Drivetrain extends SubsystemBase
   private final WPI_TalonFX rSubFalcon = new WPI_TalonFX(PortConstants.rSubFalcon);
 
   private final DifferentialDrive drive = new DifferentialDrive(lMainFalcon, rMainFalcon);
-
   private final AHRS gyro = new AHRS(Port.kMXP);
-
   private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeading()));
 
   public Drivetrain()
   {
     lMainFalcon.configFactoryDefault();
+    rMainFalcon.configFactoryDefault();
 
     lMainFalcon.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
     rMainFalcon.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
 
     lMainFalcon.setInverted(true);
+    rMainFalcon.setInverted(false);
 
     lMainFalcon.setNeutralMode(NeutralMode.Brake);
     rMainFalcon.setNeutralMode(NeutralMode.Brake);
@@ -63,13 +57,12 @@ public class Drivetrain extends SubsystemBase
 
     drive.setSafetyEnabled(false);
 
-    lMainFalcon.configOpenloopRamp(SpeedConstants.driveRampSpeed);
-    rMainFalcon.configOpenloopRamp(SpeedConstants.driveRampSpeed);
+    lMainFalcon.configOpenloopRamp(SpeedConstants.rampSpeed);
+    rMainFalcon.configOpenloopRamp(SpeedConstants.rampSpeed);
+    lMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
+    rMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
 
-    //lMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
-    //rMainFalcon.configClosedloopRamp(SpeedConstants.autoDriveRampSpeed);
-
-    //reset();
+    reset();
   }
 
   @Override
@@ -78,16 +71,16 @@ public class Drivetrain extends SubsystemBase
     odometry.update(Rotation2d.fromDegrees(getHeading()), lMainFalcon.getSelectedSensorPosition()*AutoConstants.distancePerPulse,
                     rMainFalcon.getSelectedSensorPosition()*AutoConstants.distancePerPulse);
 
-    var translation = odometry.getPoseMeters().getTranslation();
-    SmartDashboard.putNumber("REncoder", translation.getX());
-    SmartDashboard.putNumber("LEncoder", translation.getY());
+    SmartDashboard.putNumber("Left Encoder", lMainFalcon.getSelectedSensorPosition());                  
+    SmartDashboard.putNumber("Right Encoder", rMainFalcon.getSelectedSensorPosition());
   }
 
   public void drive(double speed, double steer)
   {
-    drive.arcadeDrive(speed, steer, true);
+    //needs to be tested for direction
+    drive.arcadeDrive(steer, speed, true); 
   }
-
+  
   public void reset() 
   {
     lMainFalcon.setSelectedSensorPosition(0);
@@ -95,14 +88,10 @@ public class Drivetrain extends SubsystemBase
     odometry.resetPosition(odometry.getPoseMeters(), Rotation2d.fromDegrees(getHeading()));
   }
 
-  private double getHeading() 
+  public void setRamp(double seconds)
   {
-    return Math.IEEEremainder(gyro.getAngle(), 360) * (true ? -1.0 : 1.0);
-  }
-
-  public Pose2d getPose() 
-  {
-    return odometry.getPoseMeters();
+    lMainFalcon.configOpenloopRamp(seconds);
+    rMainFalcon.configOpenloopRamp(seconds);
   }
 
   public void tankDriveVolts(double leftVolts, double rightVolts) 
@@ -112,34 +101,38 @@ public class Drivetrain extends SubsystemBase
     drive.feed();
   }
 
-  public DifferentialDriveWheelSpeeds getWheelSpeeds() 
+  public double rightEncoder()
   {
-    return new DifferentialDriveWheelSpeeds(leftEncoderRate(), rightEncoderRate());
+    return rMainFalcon.getSelectedSensorPosition()*AutoConstants.distancePerPulse;
+  }
+
+  public double leftEncoder()
+  {
+    return lMainFalcon.getSelectedSensorPosition()*AutoConstants.distancePerPulse;
   }
 
   public double rightEncoderRate()
   {
     return rMainFalcon.getSelectedSensorVelocity() * AutoConstants.distancePerPulse;
   }
-
+ 
   public double leftEncoderRate()
   {
     return lMainFalcon.getSelectedSensorVelocity() * AutoConstants.distancePerPulse;
   }
 
-  public double rightEncoder()
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() 
   {
-    return rMainFalcon.getSelectedSensorPosition() * AutoConstants.distancePerPulse;
+    return new DifferentialDriveWheelSpeeds(leftEncoderRate(), rightEncoderRate());
   }
 
-  public double leftEncoder()
+  private double getHeading() 
   {
-    return lMainFalcon.getSelectedSensorPosition() * AutoConstants.distancePerPulse;
+    return Math.IEEEremainder(gyro.getAngle(), 360);
   }
 
-  public void setRamp(double seconds)
+  public Pose2d getPose() 
   {
-    lMainFalcon.configOpenloopRamp(seconds);
-    rMainFalcon.configClosedloopRamp(seconds);
+    return odometry.getPoseMeters();
   }
 }

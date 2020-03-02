@@ -8,14 +8,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FollowerType;
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SpeedConstants;
@@ -30,9 +25,15 @@ public class Magazine extends SubsystemBase
         magazine.configOpenloopRamp(SpeedConstants.rampSpeed);
     }
 
-    public void load()
+    //check speed
+    public void run()
     {
         magazine.set(ControlMode.PercentOutput, SpeedConstants.magazineSpeed);
+    }
+
+    public void regurgitate()
+    {
+        magazine.set(ControlMode.PercentOutput, -SpeedConstants.magazineSpeed);
     }
 
     public void stop()

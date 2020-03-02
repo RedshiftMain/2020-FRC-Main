@@ -9,20 +9,23 @@ package frc.robot.commands;
 
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.SpeedConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Shooter;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class Auto extends CommandBase {
-  
+public class DriveForDist extends CommandBase 
+{  
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Drivetrain drivetrain;
 
-  public Auto(Drivetrain drive) 
+  private int direction = 1;
+  private final double distance;
+
+  public DriveForDist(Drivetrain drive, double dist, boolean back) 
   {
     drivetrain = drive;
+    if(back)
+      direction = -1;
+    distance = dist;
     drivetrain.setRamp(SpeedConstants.autoDriveRampSpeed);
     addRequirements(drivetrain);
   }
@@ -36,20 +39,19 @@ public class Auto extends CommandBase {
   @Override
   public void execute() 
   {
-    drivetrain.drive(0, -SpeedConstants.autoDriveSpeed);
-    System.out.println(drivetrain.leftEncoder());
+    drivetrain.drive(SpeedConstants.autoDriveSpeed*direction, 0);
   }
 
   @Override
   public void end(boolean interrupted) 
   {
-    drivetrain.setRamp(SpeedConstants.driveRampSpeed);
+    drivetrain.setRamp(SpeedConstants.rampSpeed);
     drivetrain.drive(0, 0);
   }
 
   @Override
   public boolean isFinished() 
   {
-    return -drivetrain.leftEncoder() > AutoConstants.driveDistance;
+    return Math.abs(drivetrain.leftEncoder()) > distance;
   }
 }
