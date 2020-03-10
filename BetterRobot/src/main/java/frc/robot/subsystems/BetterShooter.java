@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.PortConstants;
@@ -24,7 +25,8 @@ public class BetterShooter extends SubsystemBase
   
   private double speed;
 
-  public BetterShooter() {
+  public BetterShooter() 
+  {
     lShooter.configFactoryDefault();
     rShooter.configFactoryDefault();
 
@@ -37,19 +39,34 @@ public class BetterShooter extends SubsystemBase
     lShooter.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 
                                           Constants.ShooterConstants.kPIDLoopIdx, 
                                           Constants.ShooterConstants.kTimeoutMs);
+    rShooter.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 
+                                          Constants.ShooterConstants.kPIDLoopIdx, 
+                                          Constants.ShooterConstants.kTimeoutMs);                                  
     
     lShooter.configNominalOutputForward(0, Constants.ShooterConstants.kTimeoutMs);
     lShooter.configNominalOutputReverse(0, Constants.ShooterConstants.kTimeoutMs);
     lShooter.configPeakOutputForward(1, Constants.ShooterConstants.kTimeoutMs);
     lShooter.configPeakOutputReverse(-1, Constants.ShooterConstants.kTimeoutMs);
+    rShooter.configNominalOutputForward(0, Constants.ShooterConstants.kTimeoutMs);
+    rShooter.configNominalOutputReverse(0, Constants.ShooterConstants.kTimeoutMs);
+    rShooter.configPeakOutputForward(1, Constants.ShooterConstants.kTimeoutMs);
+    rShooter.configPeakOutputReverse(-1, Constants.ShooterConstants.kTimeoutMs);
   
     lShooter.config_kF(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kF, Constants.ShooterConstants.kTimeoutMs);
 	  lShooter.config_kP(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kP, Constants.ShooterConstants.kTimeoutMs);
 	  lShooter.config_kI(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kI, Constants.ShooterConstants.kTimeoutMs);
-	  lShooter.config_kD(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kD, Constants.ShooterConstants.kTimeoutMs);
+    lShooter.config_kD(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kD, Constants.ShooterConstants.kTimeoutMs);
+    rShooter.config_kF(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kF, Constants.ShooterConstants.kTimeoutMs);
+	  rShooter.config_kP(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kP, Constants.ShooterConstants.kTimeoutMs);
+	  rShooter.config_kI(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kI, Constants.ShooterConstants.kTimeoutMs);
+	  rShooter.config_kD(Constants.ShooterConstants.kPIDLoopIdx, Constants.ShooterConstants.kD, Constants.ShooterConstants.kTimeoutMs);
   
-    lShooter.setNeutralMode(NeutralMode.Coast);
-    lShooter.configClosedloopRamp(.5);
+    lShooter.setNeutralMode(NeutralMode.Brake);
+    rShooter.setNeutralMode(NeutralMode.Brake);
+    lShooter.configClosedloopRamp(.75);
+    rShooter.configClosedloopRamp(.75);
+    lShooter.configOpenloopRamp(1);
+    rShooter.configOpenloopRamp(1);
     lShooter.setSelectedSensorPosition(0);
     rShooter.setSelectedSensorPosition(0);
   }
@@ -60,6 +77,11 @@ public class BetterShooter extends SubsystemBase
     this.speed = speed;
   }
 
+  public void run()
+  {
+    lShooter.set(ControlMode.PercentOutput, 1);
+  }
+
   public void stop()
   {
     lShooter.set(ControlMode.PercentOutput, 0);
@@ -68,5 +90,12 @@ public class BetterShooter extends SubsystemBase
   public boolean atSpeed()
   {
     return lShooter.getSelectedSensorVelocity() >= speed;
+  }
+
+  @Override
+  public void periodic()
+  {
+    SmartDashboard.putNumber("LSpeed", lShooter.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("RSpeed", rShooter.getSelectedSensorVelocity());
   }
 }

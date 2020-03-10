@@ -49,6 +49,8 @@ public class Drivetrain extends SubsystemBase
 
     lMainFalcon.setNeutralMode(NeutralMode.Brake);
     rMainFalcon.setNeutralMode(NeutralMode.Brake);
+    lSubFalcon.setNeutralMode(NeutralMode.Brake);
+    rSubFalcon.setNeutralMode(NeutralMode.Brake);
 
     lSubFalcon.follow(lMainFalcon);
     lSubFalcon.setInverted(InvertType.FollowMaster);

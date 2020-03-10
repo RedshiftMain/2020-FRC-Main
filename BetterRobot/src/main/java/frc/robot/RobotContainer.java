@@ -12,7 +12,10 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.BetterElevator;
 import frc.robot.subsystems.BetterShooter;
@@ -22,6 +25,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Magazine;
 import frc.robot.Constants.*;
 import frc.robot.commands.Autonomous;
+import frc.robot.commands.BetterVision;
 
 public class RobotContainer 
 {
@@ -35,6 +39,21 @@ public class RobotContainer
   private final Joystick driver = new Joystick(0);
   private final Joystick operator = new Joystick(1);
 
+  private final Command kill = new InstantCommand(() -> intake.stop())
+                                .andThen(() -> shooter.stop())
+                                .andThen(() -> magazine.stop())
+                                .andThen(() -> feeder.stop());
+
+  private final Command shootSequence = new InstantCommand(() -> shooter.shoot(20000), shooter)
+                                          .andThen(new WaitUntilCommand(shooter::atSpeed))
+                                          .andThen(feeder::run)
+                                          .andThen(magazine::run);
+
+  private final Command bleh = new InstantCommand(() -> shooter.shoot(5000), shooter)
+                                          .andThen(new WaitUntilCommand(shooter::atSpeed))
+                                          .andThen(feeder::run)
+                                          .andThen(magazine::run);
+
   public RobotContainer() 
   {
     configureDefaultCommands();
@@ -45,17 +64,18 @@ public class RobotContainer
 
   private void configureDefaultCommands()
   {
-    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driver.getRawAxis(1)*SpeedConstants.driveSpeed, -driver.getRawAxis(4)*SpeedConstants.driveSpeed), drivetrain));
+    drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(-driver.getRawAxis(1)*SpeedConstants.driveSpeed, driver.getRawAxis(4)*SpeedConstants.driveSpeed), drivetrain));
+    elevator.setDefaultCommand(new RunCommand(() -> elevator.run(operator.getRawAxis(1)), elevator));
   }
 
   private void configureButtonBindings() 
   {
-    //intake on operator?
-    JoystickButton dA, dB,
+    JoystickButton dA, dB, dBACK,
                    oA, oB, oY, oLB, oRB, oBACK;
 
     dA = new JoystickButton(driver, 1);
     dB = new JoystickButton(driver, 2);
+    dBACK = new JoystickButton(driver, 7);
 
     oA = new JoystickButton(operator, 1);
     oB = new JoystickButton(operator, 2);
@@ -65,16 +85,19 @@ public class RobotContainer
     oBACK = new JoystickButton(operator, 7);
 
     //driver:
-    //a - vision turn and shoot
-    //b - intake out and suck
+    dA.whenPressed(new BetterVision(drivetrain, 0 /*offset*/));
+    dB.toggleWhenPressed(new StartEndCommand(() -> intake.deploy(), () -> intake.unploy(), intake));
+    dBACK.whenPressed(kill);
 
     //operator:
-    //back - kill all motors
-    //rb - manually run intake
-    //lb - outtake
-    //a - manual shoot
-    //b - bleh ball
-    //y - brakes
+    oRB.whenPressed(() -> intake.run()).whenReleased(() -> intake.stop());
+    oLB.whenPressed(() -> intake.regurgitate()).whenReleased(() -> intake.stop());
+    oA.whenPressed(shootSequence)
+    .whenReleased(kill);
+    oB.whenPressed(bleh)
+    .whenReleased(kill);
+    oBACK.whenPressed(kill);
+    oY.whenPressed(shooter::run).whenReleased(kill);
   }
 
   private void configureLimelight()

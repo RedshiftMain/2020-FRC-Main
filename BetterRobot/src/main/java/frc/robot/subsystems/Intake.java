@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,25 +22,23 @@ public class Intake extends SubsystemBase
 {
     private final WPI_VictorSPX intake = new WPI_VictorSPX(PortConstants.intake);
     private final DoubleSolenoid deployPiston = new DoubleSolenoid(PortConstants.fPiston, PortConstants.rPiston);
-
+    
     public Intake()
     {
         intake.setNeutralMode(NeutralMode.Coast);
         intake.configOpenloopRamp(SpeedConstants.rampSpeed);
     }
 
-    //check direction
     public void deploy()
     {
         run();
-        deployPiston.set(Value.kForward);
+        deployPiston.set(Value.kReverse);
     }
 
-    //check direction
     public void unploy()
     {
         stop();
-        deployPiston.set(Value.kReverse);
+        deployPiston.set(Value.kForward);
     }
 
     public void run()

@@ -22,51 +22,24 @@ import frc.robot.Constants.SpeedConstants;
 
 public class BetterElevator extends SubsystemBase 
 {   
-    /*private final WPI_TalonSRX lElevator = new WPI_TalonSRX(PortConstants.lElevator);
-    private final WPI_TalonSRX rElevator = new WPI_TalonSRX(PortConstants.rElevator);
-    private final DoubleSolenoid brakePiston = new DoubleSolenoid(PortConstants.elPiston, PortConstants.erPiston);
+    private final WPI_TalonFX lElevator = new WPI_TalonFX(PortConstants.lElevator);
+    private final WPI_TalonFX rElevator = new WPI_TalonFX(PortConstants.rElevator);
 
     public BetterElevator()
     {
-        //check direction
         rElevator.follow(lElevator);
         rElevator.setInverted(InvertType.OpposeMaster);
     }
-    public void move()
-    {
-        if(-1*RobotContainer.stick2.getRawAxis(1) > 0)
-            lElevator.set(ControlMode.PercentOutput, ElevatorConstants.elevatorClimbSpeed*RobotContainer.stick2.getRawAxis(1));
-        else
-            lElevator.set(ControlMode.PercentOutput, ElevatorConstants.elevatorHookSpeed*RobotContainer.stick2.getRawAxis(1));
-    }
-    public void up()
-    {
-        lElevator.set(ControlMode.PercentOutput, SpeedConstants.elevatorSpeed);
-    }
-
-    public void down()
-    {
-        lElevator.set(ControlMode.PercentOutput, -SpeedConstants.elevatorSpeed);
-    }
     
-    public void brakesForward()
+    public void run(double speed)
     {
-        ePiston.set(Value.kForward);
+        lElevator.set(ControlMode.PercentOutput, SpeedConstants.elevatorSpeed*speed);
     }
 
-    public void brakesReverse()
-    {
-        ePiston.set(Value.kReverse);
-    }
- 
-    public void stop()
-    {
-        lElevator.set(ControlMode.PercentOutput, 0);
-    }
 
     @Override
     public void periodic() 
     {
     
-    }*/
+    }
 }

@@ -26,12 +26,8 @@ public final class Constants
         public static final int lShooter  = 11;
         public static final int rShooter  = 12;
 
-        //need verification
-        public static final int beamSensor   = 14;
         public static final int fPiston  = 5;
         public static final int rPiston  = 4;
-        public static final int elPiston  = 6;
-        public static final int erPiston  = 7;
     }
     public static final class AutoConstants
     {
@@ -64,15 +60,16 @@ public final class Constants
     }
     public static final class SpeedConstants
     {
-        public static final double driveSpeed = 0.8;
+        public static final double driveTestSpeed = 0.4;
+        public static final double driveSpeed = driveTestSpeed;//0.8
         public static final double autoDriveSpeed = 0.6;
 
         public static final double minShootSpeed = .9;
         public static final double maxShootSpeed = 0.95;
 
         public static final double intakeSpeed = 1.0;
-        public static final double magazineSpeed = 0.4;
-        public static final double feederSpeed = 0.9;
+        public static final double magazineSpeed = 0.7;
+        public static final double feederSpeed = 1.0;
         public static final double elevatorSpeed = 0.2;
 
         public static final double rampSpeed = 0.125;
@@ -85,10 +82,10 @@ public final class Constants
         public static final int kTimeoutMs = 30;
 
         //0.2, 0.00001, 8, 1023.0/21264,  100,  1.00
-        public static final double kP = 0.2;
-        public static final double kI = 0.00001;
-        public static final double kD = 8;
-        public static final double kF = 1023.0/21264.0;
+        public static final double kP = 0;
+        public static final double kI = 0;
+        public static final double kD = 0;
+        public static final double kF = 1023.0/21404.0;
     }
     public static final class ElevatorConstants
     {
